@@ -1,12 +1,31 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { TaskDto } from './task.dto';
 
 @Injectable()
 export class TaskService {
-    private task: TaskDto[] = [];
+    private tasks: TaskDto[] = [];
 
     create (task: TaskDto) {
-        this.task.push(task);
-        console.log(this.task);
+        this.tasks.push(task);
+        console.log(this.tasks);
+    }
+    findById(id: string): TaskDto{
+        const foundTask = this.tasks.filter(t=> t.id === id);
+
+        if (foundTask.length > 0) {
+            return foundTask[0];
+        }
+        throw new HttpException(`Task with ID ${id} not found`, HttpStatus.NOT_FOUND);
+
+    }
+
+    update(task: TaskDto) {
+        let taskIndex = this.tasks.findIndex(t => t.id === task.id); // retorna o index se for verdadeiro
+         
+        if(taskIndex >= 0){
+            this.tasks[taskIndex] = task;
+            return;
+        }
+        throw new HttpException(`Task with ID ${task.id} not found`, HttpStatus.BAD_REQUEST);
     }
 }
